@@ -1,0 +1,35 @@
+types
+
+Word = seq of char
+inv w == len w = WORD_LENGTH;
+
+Clue = <GREEN> | <YELLOW> | <GREY>;
+
+Guess :: 
+        word : Word
+        clues : seq of Clue
+inv mk_Guess(-, clues) == len g.clues = WORD_LENGTH;
+
+Gamestate = <PLAYING> | <WON> | <LOST>;
+
+state Game of
+    wordle : Word 
+    guesses : seq of Guess
+    gstate : Gamestate
+init game == game = mk_Game("BEACH", [], <PLAYING>)
+inv mk_Game(-, guesses, -) == len game.guesses <= MAX_GUESSES
+end;
+
+values
+
+WORD_LENGTH = 5;
+MAX_GUESSES = 6;
+
+g1 = mk_Guess("WEARY", [<GREEN>,<GREY>,<GREY>,<GREY>,<GREY>]);
+g2 = mk_Guess("PRINT", [<GREEN>,<GREEN>,<GREEN>,<GREEN>,<GREEN>]);
+g3 = mk_Guess("PILLS", [<GREEN>,<YELLOW>,<GREY>,<GREY>,<GREY>]);
+
+w1 = "HELLO";
+w2 = "GOODBYE"
+
+
