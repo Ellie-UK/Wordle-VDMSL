@@ -8,7 +8,7 @@ Clue = <GREEN> | <YELLOW> | <GREY>;
 Guess :: 
         word : Word
         clues : seq of Clue
-inv mk_Guess(-, clues) == len g.clues = WORD_LENGTH;
+inv mk_Guess(-, clues) == len clues = WORD_LENGTH;
 
 Gamestate = <PLAYING> | <WON> | <LOST>;
 
@@ -17,19 +17,52 @@ state Game of
     guesses : seq of Guess
     gstate : Gamestate
 init game == game = mk_Game("BEACH", [], <PLAYING>)
-inv mk_Game(-, guesses, -) == len game.guesses <= MAX_GUESSES
+inv mk_Game(-, guesses, -) == len guesses <= MAX_GUESSES
 end;
+
+operations
+
+make_guess: Word ==> Guess
+make_guess(word) == (
+    dcl g: Guess := mk_Guess(word, check_guess(wordle, word));
+    guesses := guesses ^ [g];
+    if word = wordle then gstate := <WON>
+    else if len guesses = MAX_GUESSES then gstate := <LOST>;
+    return g
+)
+
+pre gstate = <PLAYING> and
+    len guesses < MAX_GUESSES and
+    word in set elems ALLOWED and 
+    word in set elems ANSWERS;
+
+check_guess: Word * Word ==> seq of Clue
+check_guess(word, gs) == (
+    dcl clues: seq of Clue := [];
+    for all i in set inds gs do 
+        clues(i) := check_letter(gs(i), i, word); 
+    return clues
+)
+
+functions
+    
+check_letter: char * nat1 * Word -> Clue
+check_letter(c, i, word) == 
+    if word(i) = c then <GREEN>
+    else if c not in set elems word then <GREY>
+    else <YELLOW>
+pre i <= WORD_LENGTH
 
 values
 
 WORD_LENGTH = 5;
 MAX_GUESSES = 6;
 
-g1 = mk_Guess("WEARY", [<GREEN>,<GREY>,<GREY>,<GREY>,<GREY>]);
-g2 = mk_Guess("PRINT", [<GREEN>,<GREEN>,<GREEN>,<GREEN>,<GREEN>]);
-g3 = mk_Guess("PILLS", [<GREEN>,<YELLOW>,<GREY>,<GREY>,<GREY>]);
+g1 = mk_Guess("WEARY", [<GREEN>, <GREY>, <GREY>, <GREY>, <GREY>]);
+g2 = mk_Guess("PRINT", [<GREEN>, <GREEN>, <GREEN>, <GREEN>, <GREEN>]);
+g3 = mk_Guess("PILLS", [<GREEN>, <YELLOW>, <GREY>, <GREY>, <GREY>]);
 
 w1 = "HELLO";
-w2 = "GOODBYE"
+w2 = "GOODBYE";
 
 
